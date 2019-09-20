@@ -68,9 +68,9 @@ func dataSourceAwsServiceCatalogPortfolioRead(d *schema.ResourceData, meta inter
 	d.Set("description", pd.Description)
 	d.Set("name", pd.DisplayName)
 	d.Set("provider_name", pd.ProviderName)
-	d.Set("tags", tagsToMapSC(output.Tags))
+	d.Set("tags", tagsToMapServiceCatalog(output.Tags))
 
-	d.SetId(pd.Id)
+	d.SetId(aws.StringValue(pd.Id))
 
 	return nil
 }
