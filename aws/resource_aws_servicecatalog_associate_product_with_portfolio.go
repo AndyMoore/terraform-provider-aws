@@ -9,6 +9,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/servicecatalog"
+	"github.com/hashicorp/terraform/helper/customdiff"
 	"github.com/hashicorp/terraform/helper/hashcode"
 
 	//"github.com/hashicorp/terraform/helper/resource"
@@ -39,10 +40,22 @@ func resourceAwsServiceCatalogAssociateProductWithPortfolio() *schema.Resource {
 			Create: schema.DefaultTimeout(15 * time.Minute),
 		},
 
+		CustomizeDiff: customdiff.Sequence(
+			// This is to prevent this error:
+			// All fields are ForceNew or Computed w/out Optional, Update is superfluous
+			customdiff.ForceNewIfChange("product_id", func(old, new, meta interface{}) bool {
+				return old.(string) != new.(string)
+			}),
+			customdiff.ForceNewIfChange("source_portfolio_id", func(old, new, meta interface{}) bool {
+				return old.(string) != new.(string)
+			}),
+		),
+
 		Schema: map[string]*schema.Schema{
 			"portfolio_id": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"product_id": {
 				Type:     schema.TypeString,
@@ -111,58 +124,6 @@ func resourceAwsServiceCatalogAssociateProductWithPortfolioRead(d *schema.Resour
 }
 
 func resourceAwsServiceCatalogAssociateProductWithPortfolioUpdate(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AWSClient).scconn
-
-	newinput := servicecatalog.AssociateProductWithPortfolioInput{
-		PortfolioId: aws.String(d.Get("portfolio_id").(string)),
-		ProductId:   aws.String(d.Get("product_id").(string)),
-	}
-	oldinput := servicecatalog.DisassociateProductFromPortfolioInput{
-		PortfolioId: aws.String(d.Get("portfolio_id").(string)),
-		ProductId:   aws.String(d.Get("product_id").(string)),
-	}
-	changed := 0
-
-	if d.HasChange("accept_language") {
-		v, _ := d.GetOk("accept_language")
-		newinput.AcceptLanguage = aws.String(v.(string))
-		changed = 1
-	}
-
-	if d.HasChange("product_id") {
-		o, n := d.GetChange("product_id")
-		newinput.ProductId = aws.String(n.(string))
-		oldinput.ProductId = aws.String(o.(string))
-		changed = 1
-	}
-
-	if d.HasChange("portfolio_id") {
-		o, n := d.GetChange("portfolio_id")
-		newinput.PortfolioId = aws.String(n.(string))
-		oldinput.PortfolioId = aws.String(o.(string))
-		changed = 1
-	}
-
-	if d.HasChange("source_portfolio_id") {
-		v, _ := d.GetOk("source_portfolio_id")
-		newinput.SourcePortfolioId = aws.String(v.(string))
-		changed = 1
-	}
-
-	if changed == 1 {
-		log.Printf("[DEBUG] Disassociate product from portfolio: %#v", oldinput)
-		_, err := conn.DisassociateProductFromPortfolio(&oldinput)
-		if err != nil {
-			return fmt.Errorf("Disassociating Product from Portfolio failed: %s", err)
-			//return fmt.Errorf("Disassociating Product (%s) from Portfolio (%s) failed: %s", *oldinput.ProductId, *oldinput.PortfolioId, err)
-		}
-
-		log.Printf("[DEBUG] Associate product from portfolio: %#v", newinput)
-		_, err2 := conn.AssociateProductWithPortfolio(&newinput)
-		if err2 != nil {
-			return fmt.Errorf("Associating Service Catalog Product with Portfolio failed: %s", err)
-		}
-	}
 	return resourceAwsServiceCatalogAssociateProductWithPortfolioRead(d, meta)
 }
 
