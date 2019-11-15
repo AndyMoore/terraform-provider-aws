@@ -1,7 +1,7 @@
 ---
+subcategory: "Batch"
 layout: "aws"
 page_title: "AWS: aws_batch_compute_environment"
-sidebar_current: "docs-aws-resource-batch-compute-environment"
 description: |-
   Creates a AWS Batch compute environment.
 ---

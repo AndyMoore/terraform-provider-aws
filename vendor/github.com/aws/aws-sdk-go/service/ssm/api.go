@@ -800,6 +800,13 @@ func (c *SSM) CreateMaintenanceWindowRequest(input *CreateMaintenanceWindowInput
 //
 // Creates a new maintenance window.
 //
+// The value you specify for Duration determines the specific end time for the
+// maintenance window based on the time it begins. No maintenance window tasks
+// are permitted to start after the resulting endtime minus the number of hours
+// you specify for Cutoff. For example, if the maintenance window starts at
+// 3 PM, the duration is three hours, and the value you specify for Cutoff is
+// one hour, no maintenance window tasks can start after 5 PM.
+//
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
 // the error.
@@ -2427,10 +2434,12 @@ func (c *SSM) DescribeActivationsPagesWithContext(ctx aws.Context, input *Descri
 		},
 	}
 
-	cont := true
-	for p.Next() && cont {
-		cont = fn(p.Page().(*DescribeActivationsOutput), !p.HasNextPage())
+	for p.Next() {
+		if !fn(p.Page().(*DescribeActivationsOutput), !p.HasNextPage()) {
+			break
+		}
 	}
+
 	return p.Err()
 }
 
@@ -3590,10 +3599,12 @@ func (c *SSM) DescribeInstanceInformationPagesWithContext(ctx aws.Context, input
 		},
 	}
 
-	cont := true
-	for p.Next() && cont {
-		cont = fn(p.Page().(*DescribeInstanceInformationOutput), !p.HasNextPage())
+	for p.Next() {
+		if !fn(p.Page().(*DescribeInstanceInformationOutput), !p.HasNextPage()) {
+			break
+		}
 	}
+
 	return p.Err()
 }
 
@@ -4859,10 +4870,12 @@ func (c *SSM) DescribeParametersPagesWithContext(ctx aws.Context, input *Describ
 		},
 	}
 
-	cont := true
-	for p.Next() && cont {
-		cont = fn(p.Page().(*DescribeParametersOutput), !p.HasNextPage())
+	for p.Next() {
+		if !fn(p.Page().(*DescribeParametersOutput), !p.HasNextPage()) {
+			break
+		}
 	}
+
 	return p.Err()
 }
 
@@ -6858,10 +6871,12 @@ func (c *SSM) GetParameterHistoryPagesWithContext(ctx aws.Context, input *GetPar
 		},
 	}
 
-	cont := true
-	for p.Next() && cont {
-		cont = fn(p.Page().(*GetParameterHistoryOutput), !p.HasNextPage())
+	for p.Next() {
+		if !fn(p.Page().(*GetParameterHistoryOutput), !p.HasNextPage()) {
+			break
+		}
 	}
+
 	return p.Err()
 }
 
@@ -7104,10 +7119,12 @@ func (c *SSM) GetParametersByPathPagesWithContext(ctx aws.Context, input *GetPar
 		},
 	}
 
-	cont := true
-	for p.Next() && cont {
-		cont = fn(p.Page().(*GetParametersByPathOutput), !p.HasNextPage())
+	for p.Next() {
+		if !fn(p.Page().(*GetParametersByPathOutput), !p.HasNextPage()) {
+			break
+		}
 	}
+
 	return p.Err()
 }
 
@@ -7715,10 +7732,12 @@ func (c *SSM) ListAssociationsPagesWithContext(ctx aws.Context, input *ListAssoc
 		},
 	}
 
-	cont := true
-	for p.Next() && cont {
-		cont = fn(p.Page().(*ListAssociationsOutput), !p.HasNextPage())
+	for p.Next() {
+		if !fn(p.Page().(*ListAssociationsOutput), !p.HasNextPage()) {
+			break
+		}
 	}
+
 	return p.Err()
 }
 
@@ -7874,10 +7893,12 @@ func (c *SSM) ListCommandInvocationsPagesWithContext(ctx aws.Context, input *Lis
 		},
 	}
 
-	cont := true
-	for p.Next() && cont {
-		cont = fn(p.Page().(*ListCommandInvocationsOutput), !p.HasNextPage())
+	for p.Next() {
+		if !fn(p.Page().(*ListCommandInvocationsOutput), !p.HasNextPage()) {
+			break
+		}
 	}
+
 	return p.Err()
 }
 
@@ -8029,10 +8050,12 @@ func (c *SSM) ListCommandsPagesWithContext(ctx aws.Context, input *ListCommandsI
 		},
 	}
 
-	cont := true
-	for p.Next() && cont {
-		cont = fn(p.Page().(*ListCommandsOutput), !p.HasNextPage())
+	for p.Next() {
+		if !fn(p.Page().(*ListCommandsOutput), !p.HasNextPage()) {
+			break
+		}
 	}
+
 	return p.Err()
 }
 
@@ -8440,10 +8463,12 @@ func (c *SSM) ListDocumentsPagesWithContext(ctx aws.Context, input *ListDocument
 		},
 	}
 
-	cont := true
-	for p.Next() && cont {
-		cont = fn(p.Page().(*ListDocumentsOutput), !p.HasNextPage())
+	for p.Next() {
+		if !fn(p.Page().(*ListDocumentsOutput), !p.HasNextPage()) {
+			break
+		}
 	}
+
 	return p.Err()
 }
 
@@ -10449,6 +10474,9 @@ func (c *SSM) StartSessionRequest(input *StartSessionInput) (req *request.Reques
 // For information, see Install the Session Manager Plugin for the AWS CLI (http://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html)
 // in the AWS Systems Manager User Guide.
 //
+// AWS Tools for PowerShell usage: Start-SSMSession is not currently supported
+// by AWS Tools for PowerShell on Windows local machines.
+//
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
 // the error.
@@ -10712,6 +10740,13 @@ func (c *SSM) UpdateAssociationRequest(input *UpdateAssociationInput) (req *requ
 //
 // Updates an association. You can update the association name and version,
 // the document version, schedule, parameters, and Amazon S3 output.
+//
+// In order to call this API action, your IAM user account, group, or role must
+// be configured with permission to call the DescribeAssociation API action.
+// If you don't have permission to call DescribeAssociation, then you receive
+// the following error: An error occurred (AccessDeniedException) when calling
+// the UpdateAssociation operation: User: <user_arn> is not authorized to perform:
+// ssm:DescribeAssociation on resource: <resource_arn>
 //
 // When you update an association, the association immediately runs against
 // the specified targets.
@@ -11137,6 +11172,13 @@ func (c *SSM) UpdateMaintenanceWindowRequest(input *UpdateMaintenanceWindowInput
 // UpdateMaintenanceWindow API operation for Amazon Simple Systems Manager (SSM).
 //
 // Updates an existing maintenance window. Only specified parameters are modified.
+//
+// The value you specify for Duration determines the specific end time for the
+// maintenance window based on the time it begins. No maintenance window tasks
+// are permitted to start after the resulting endtime minus the number of hours
+// you specify for Cutoff. For example, if the maintenance window starts at
+// 3 PM, the duration is three hours, and the value you specify for Cutoff is
+// one hour, no maintenance window tasks can start after 5 PM.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -13047,16 +13089,21 @@ func (s *AttachmentInformation) SetName(v string) *AttachmentInformation {
 	return s
 }
 
-// A key and value pair that identifies the location of an attachment to a document.
+// Identifying information about a document attachment, including the file name
+// and a key-value pair that identifies the location of an attachment to a document.
 type AttachmentsSource struct {
 	_ struct{} `type:"structure"`
 
-	// The key of a key and value pair that identifies the location of an attachment
+	// The key of a key-value pair that identifies the location of an attachment
 	// to a document.
 	Key *string `type:"string" enum:"AttachmentsSourceKey"`
 
-	// The URL of the location of a document attachment, such as the URL of an Amazon
-	// S3 bucket.
+	// The name of the document attachment file.
+	Name *string `type:"string"`
+
+	// The value of a key-value pair that identifies the location of an attachment
+	// to a document. The format is the URL of the location of a document attachment,
+	// such as the URL of an Amazon S3 bucket.
 	Values []*string `min:"1" type:"list"`
 }
 
@@ -13086,6 +13133,12 @@ func (s *AttachmentsSource) Validate() error {
 // SetKey sets the Key field's value.
 func (s *AttachmentsSource) SetKey(v string) *AttachmentsSource {
 	s.Key = &v
+	return s
+}
+
+// SetName sets the Name field's value.
+func (s *AttachmentsSource) SetName(v string) *AttachmentsSource {
+	s.Name = &v
 	return s
 }
 
@@ -25101,10 +25154,10 @@ type InstanceInformation struct {
 	// The instance ID.
 	InstanceId *string `type:"string"`
 
-	// Indicates whether latest version of SSM Agent is running on your instance.
-	// Some older versions of Windows Server use the EC2Config service to process
-	// SSM requests. For this reason, this field does not indicate whether or not
-	// the latest version is installed on Windows managed instances.
+	// Indicates whether the latest version of SSM Agent is running on your Linux
+	// Managed Instance. This field does not indicate whether or not the latest
+	// version is installed on Windows managed instances, because some older versions
+	// of Windows Server use the EC2Config service to process SSM requests.
 	IsLatestVersion *bool `type:"boolean"`
 
 	// The date the association was last run.
@@ -26375,7 +26428,7 @@ type LabelParameterVersionInput struct {
 
 	// The specific version of the parameter on which you want to attach one or
 	// more labels. If no version is specified, the system attaches the label to
-	// the latest version.)
+	// the latest version.
 	ParameterVersion *int64 `type:"long"`
 }
 
@@ -26436,6 +26489,9 @@ type LabelParameterVersionOutput struct {
 	// label requirements, see Labeling Parameters (http://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-paramstore-labels.html)
 	// in the AWS Systems Manager User Guide.
 	InvalidLabels []*string `min:"1" type:"list"`
+
+	// The version of the parameter that has been labeled.
+	ParameterVersion *int64 `type:"long"`
 }
 
 // String returns the string representation
@@ -26451,6 +26507,12 @@ func (s LabelParameterVersionOutput) GoString() string {
 // SetInvalidLabels sets the InvalidLabels field's value.
 func (s *LabelParameterVersionOutput) SetInvalidLabels(v []*string) *LabelParameterVersionOutput {
 	s.InvalidLabels = v
+	return s
+}
+
+// SetParameterVersion sets the ParameterVersion field's value.
+func (s *LabelParameterVersionOutput) SetParameterVersion(v int64) *LabelParameterVersionOutput {
+	s.ParameterVersion = &v
 	return s
 }
 
@@ -26663,7 +26725,7 @@ type ListCommandInvocationsInput struct {
 	Details *bool `type:"boolean"`
 
 	// (Optional) One or more filters. Use a filter to return a more specific list
-	// of results.
+	// of results. Note that the DocumentName filter is not supported for ListCommandInvocations.
 	Filters []*CommandFilter `min:"1" type:"list"`
 
 	// (Optional) The command execution details for a specific instance ID.
@@ -31340,7 +31402,7 @@ func (s PutComplianceItemsOutput) GoString() string {
 type PutInventoryInput struct {
 	_ struct{} `type:"structure"`
 
-	// One or more instance IDs where you want to add or update inventory items.
+	// An instance ID where you want to add or update inventory items.
 	//
 	// InstanceId is a required field
 	InstanceId *string `type:"string" required:"true"`
@@ -31722,6 +31784,9 @@ func (s *PutParameterInput) SetValue(v string) *PutParameterInput {
 type PutParameterOutput struct {
 	_ struct{} `type:"structure"`
 
+	// The tier assigned to the parameter.
+	Tier *string `type:"string" enum:"ParameterTier"`
+
 	// The new version number of a parameter. If you edit a parameter value, Parameter
 	// Store automatically creates a new version and assigns this new version a
 	// unique ID. You can reference a parameter version ID in API actions or in
@@ -31739,6 +31804,12 @@ func (s PutParameterOutput) String() string {
 // GoString returns the string representation
 func (s PutParameterOutput) GoString() string {
 	return s.String()
+}
+
+// SetTier sets the Tier field's value.
+func (s *PutParameterOutput) SetTier(v string) *PutParameterOutput {
+	s.Tier = &v
+	return s
 }
 
 // SetVersion sets the Version field's value.
@@ -34697,8 +34768,16 @@ func (s *Tag) SetValue(v string) *Tag {
 //    * Key=tag-key,Values=Name,Instance-Type,CostCenter
 //
 //    * (Maintenance window targets only) Key=resource-groups:Name,Values=ProductionResourceGroup
+//    This example demonstrates how to target all resources in the resource
+//    group ProductionResourceGroup in your maintenance window.
 //
 //    * (Maintenance window targets only) Key=resource-groups:ResourceTypeFilters,Values=AWS::EC2::INSTANCE,AWS::EC2::VPC
+//    This example demonstrates how to target only Amazon EC2 instances and
+//    VPCs in your maintenance window.
+//
+//    * (State Manager association targets only) Key=InstanceIds,Values=* This
+//    example demonstrates how to target all managed instances in the AWS Region
+//    where the association was created.
 //
 // For information about how to send commands that target instances using Key,Value
 // parameters, see Using Targets and Rate Controls to Send Commands to a Fleet
@@ -37049,6 +37128,9 @@ const (
 const (
 	// AttachmentsSourceKeySourceUrl is a AttachmentsSourceKey enum value
 	AttachmentsSourceKeySourceUrl = "SourceUrl"
+
+	// AttachmentsSourceKeyS3fileUrl is a AttachmentsSourceKey enum value
+	AttachmentsSourceKeyS3fileUrl = "S3FileUrl"
 )
 
 const (

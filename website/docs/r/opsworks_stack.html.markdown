@@ -1,7 +1,7 @@
 ---
+subcategory: "OpsWorks"
 layout: "aws"
 page_title: "AWS: aws_opsworks_stack"
-sidebar_current: "docs-aws-resource-opsworks-stack"
 description: |-
   Provides an OpsWorks stack resource.
 ---

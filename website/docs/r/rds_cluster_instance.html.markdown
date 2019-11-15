@@ -1,7 +1,7 @@
 ---
+subcategory: "RDS"
 layout: "aws"
 page_title: "AWS: aws_rds_cluster_instance"
-sidebar_current: "docs-aws-resource-rds-cluster-instance"
 description: |-
   Provides an RDS Cluster Resource Instance
 ---

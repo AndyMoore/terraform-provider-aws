@@ -1,7 +1,7 @@
 ---
+subcategory: "CloudWatch"
 layout: "aws"
 page_title: "AWS: aws_cloudwatch_log_destination"
-sidebar_current: "docs-aws-resource-cloudwatch-log-destination"
 description: |-
   Provides a CloudWatch Logs destination.
 ---

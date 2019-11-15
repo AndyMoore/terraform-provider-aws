@@ -1,7 +1,7 @@
 ---
+subcategory: "WAF Regional"
 layout: "aws"
 page_title: "AWS: aws_wafregional_web_acl_association"
-sidebar_current: "docs-aws-resource-wafregional-web-acl-association"
 description: |-
   Manages an association with WAF Regional Web ACL
 ---
